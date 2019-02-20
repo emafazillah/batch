@@ -14,6 +14,8 @@ public class BatchApplicationTests {
 
 	@Test
 	public void testPositiveMain() throws Exception {
+		System.out.println("===testPositiveMain===");
+		
 		String[] mockStrings = new String[] {"2019-02-18", "JOB NAME"};
 		
 		Launch mockLaunch = PowerMockito.mock(Launch.class);
@@ -25,6 +27,8 @@ public class BatchApplicationTests {
 	
 	@Test
 	public void testNegativeMain() throws Exception {
+		System.out.println("===testNegativeMain===");
+		
 		String[] mockStrings = new String[] {"2019-02-18", "JOB NAME"};
 		
 		Launch mockLaunch = PowerMockito.mock(Launch.class);
