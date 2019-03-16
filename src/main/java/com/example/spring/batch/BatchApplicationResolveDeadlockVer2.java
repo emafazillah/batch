@@ -1,6 +1,6 @@
 package com.example.spring.batch;
 
-public class BatchApplicationVerTwo {
+public class BatchApplicationResolveDeadlockVer2 {
 	
 	private static int attemptCount = 1;
 	

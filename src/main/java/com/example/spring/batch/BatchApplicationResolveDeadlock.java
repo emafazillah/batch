@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
 //@SpringBootApplication
 @Configuration
 @EnableBatchProcessing
-public class BatchApplication {
+public class BatchApplicationResolveDeadlock {
 	
 	@Autowired
     private JobBuilderFactory jobs;
@@ -71,9 +71,10 @@ public class BatchApplication {
                 .build();
     }
 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		//SpringApplication.run(BatchApplication.class, args);
-		ApplicationContext context = new AnnotationConfigApplicationContext(BatchApplication.class);
+		ApplicationContext context = new AnnotationConfigApplicationContext(BatchApplicationResolveDeadlock.class);
         JobLauncher jobLauncher = context.getBean(JobLauncher.class);
         Job job = context.getBean(Job.class);
         jobLauncher.run(job, new JobParameters());

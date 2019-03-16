@@ -22,7 +22,7 @@ public class BatchApplicationTests {
 		
 		PowerMockito.when(mockLaunch.launch(1, mockStrings)).thenReturn(5);
 		
-		BatchApplicationVerTwo.main(mockStrings);
+		BatchApplicationResolveDeadlockVer2.main(mockStrings);
 	}
 	
 	@Test
@@ -35,7 +35,7 @@ public class BatchApplicationTests {
 		
 		PowerMockito.when(mockLaunch.launch(3, mockStrings)).thenReturn(4);
 		
-		BatchApplicationVerTwo.main(mockStrings);
+		BatchApplicationResolveDeadlockVer2.main(mockStrings);
 		
 		assertEquals(4, mockLaunch.launch(3, mockStrings));
 	}
