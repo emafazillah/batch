@@ -1,6 +1,7 @@
 package com.example.spring.batch;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -17,6 +18,9 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.PagingQueryProvider;
@@ -44,12 +48,16 @@ public class BatchApplicationWithMsSql {
 	
 	@Autowired
 	@Qualifier("MyItemReader")
-	private ItemReader<Inventory> itemReader;
+	private JdbcPagingItemReader<Inventory> itemReader;
+	
+	@Autowired
+	@Qualifier("MyItemWriter")
+	private ItemWriter<Inventory> itemWriter;
 	
 	@Bean("MyItemReader")
-	public JdbcPagingItemReader<Inventory> jobReader(DataSource dataSource) {
+	public JdbcPagingItemReader<Inventory> jobReader() {
 		JdbcPagingItemReader<Inventory> reader = new JdbcPagingItemReader<>();
-		reader.setDataSource(dataSource);
+		reader.setDataSource(dataSource());
 		reader.setPageSize(1);
 		 
         PagingQueryProvider queryProvider = createQueryProvider();
@@ -58,6 +66,23 @@ public class BatchApplicationWithMsSql {
         reader.setRowMapper(new BeanPropertyRowMapper<>(Inventory.class));
  
         return reader;
+	}
+	
+	@Bean("MyItemWriter")
+	public ItemWriter<Inventory> jobWriter() {
+//		JdbcBatchItemWriter<Inventory> itemWriter = new JdbcBatchItemWriter<Inventory>();
+//        itemWriter.setDataSource(dataSource());
+//        itemWriter.setSql("UPDATE Inventory SET quantity = 151 where id = 1");
+//        itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Inventory>());
+//        return itemWriter;
+		return new ItemWriter<Inventory>() {
+
+			@Override
+			public void write(List<? extends Inventory> arg0) throws Exception {
+				// TODO Auto-generated method stub
+				
+			}
+		};
 	}
 	
 	private PagingQueryProvider createQueryProvider() {
@@ -91,6 +116,7 @@ public class BatchApplicationWithMsSql {
 		return stepBuilderFactory.get("step")
 				.<Inventory, Inventory>chunk(5)
 				.reader(itemReader)
+				.writer(itemWriter)
 				.build();
 	}
 	
