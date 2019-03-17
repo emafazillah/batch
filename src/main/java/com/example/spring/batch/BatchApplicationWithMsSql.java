@@ -1,52 +1,113 @@
 package com.example.spring.batch;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.Order;
+import org.springframework.batch.item.database.PagingQueryProvider;
+import org.springframework.batch.item.database.support.SqlServerPagingQueryProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import com.example.spring.batch.model.Inventory;
 
 @Configuration
 @EnableBatchProcessing
 public class BatchApplicationWithMsSql {
 	
 	@Autowired
-	private JobBuilderFactory job;
+	private JobBuilderFactory jobBuilderFactory;
 	
 	@Autowired
-	private StepBuilderFactory step;
+	private StepBuilderFactory stepBuilderFactory;
 	
-	@Bean
-	public ItemReader<Integer> itemReader() {
-		
-		
-		
-		return null;
+	@Autowired
+	@Qualifier("MyItemReader")
+	private ItemReader<Inventory> itemReader;
+	
+	@Bean("MyItemReader")
+	public JdbcPagingItemReader<Inventory> jobReader(DataSource dataSource) {
+		JdbcPagingItemReader<Inventory> reader = new JdbcPagingItemReader<>();
+		reader.setDataSource(dataSource);
+		reader.setPageSize(1);
+		 
+        PagingQueryProvider queryProvider = createQueryProvider();
+        reader.setQueryProvider(queryProvider);
+ 
+        reader.setRowMapper(new BeanPropertyRowMapper<>(Inventory.class));
+ 
+        return reader;
 	}
 	
+	private PagingQueryProvider createQueryProvider() {
+		SqlServerPagingQueryProvider queryProvider = new SqlServerPagingQueryProvider();
+ 
+        queryProvider.setSelectClause("SELECT id, name, quantity");
+        queryProvider.setFromClause("FROM Inventory");
+        queryProvider.setSortKeys(sortByNameAsc());
+ 
+        return queryProvider;
+    }
+	
+	private Map<String, Order> sortByNameAsc() {
+        Map<String, Order> sortConfiguration = new HashMap<>();
+        sortConfiguration.put("name", Order.ASCENDING);
+        return sortConfiguration;
+    }
+	
 	@Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        dataSource.setUrl("jdbc:sqlserver://localhost;databaseName=TestDB");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("Ema!1838");
+        return dataSource;
+    }
+	
+	@Bean(name = "step")
 	public Step step() {
-		return step.get("step")
-				.<Integer, Integer>chunk(5)
-				.reader(itemReader())
+		return stepBuilderFactory.get("step")
+				.<Inventory, Inventory>chunk(5)
+				.reader(itemReader)
 				.build();
 	}
 	
-	@Bean
+	@Bean(name = "job")
     public Job job() {
-        return job.get("job")
+        return jobBuilderFactory.get("job")
                 .start(step())
                 .build();
     }
 	
-	public static void main(String...strings) {
+	@SuppressWarnings("resource")
+	public static void main(String...strings) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+		ApplicationContext context = new AnnotationConfigApplicationContext(BatchApplicationWithMsSql.class);
 		
+		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+        Job job = context.getBean(Job.class);
+        jobLauncher.run(job, new JobParameters());
 	}
 
 }
