@@ -18,11 +18,11 @@ public class BatchApplicationTests {
 		
 		String[] mockStrings = new String[] {"2019-02-18", "JOB NAME"};
 		
-		Launch mockLaunch = PowerMockito.mock(Launch.class);
+//		Launch mockLaunch = PowerMockito.mock(Launch.class);
+//		
+//		PowerMockito.when(mockLaunch.launch(1, mockStrings)).thenReturn(5);
 		
-		PowerMockito.when(mockLaunch.launch(1, mockStrings)).thenReturn(5);
-		
-		BatchApplicationResolveDeadlockVer2.main(mockStrings);
+		BatchApplicationResolveDeadlock.main(mockStrings);
 	}
 	
 	@Test
@@ -31,13 +31,13 @@ public class BatchApplicationTests {
 		
 		String[] mockStrings = new String[] {"2019-02-18", "JOB NAME"};
 		
-		Launch mockLaunch = PowerMockito.mock(Launch.class);
+//		Launch mockLaunch = PowerMockito.mock(Launch.class);
+//		
+//		PowerMockito.when(mockLaunch.launch(3, mockStrings)).thenReturn(4);
 		
-		PowerMockito.when(mockLaunch.launch(3, mockStrings)).thenReturn(4);
+		BatchApplicationResolveDeadlock.main(mockStrings);
 		
-		BatchApplicationResolveDeadlockVer2.main(mockStrings);
-		
-		assertEquals(4, mockLaunch.launch(3, mockStrings));
+//		assertEquals(4, mockLaunch.launch(3, mockStrings));
 	}
 
 }
