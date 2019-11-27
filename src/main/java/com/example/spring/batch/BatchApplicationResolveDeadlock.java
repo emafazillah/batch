@@ -17,14 +17,11 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.SpringApplication;
-//import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-//@SpringBootApplication
 @Configuration
 @EnableBatchProcessing
 public class BatchApplicationResolveDeadlock {
@@ -73,7 +70,6 @@ public class BatchApplicationResolveDeadlock {
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
-		//SpringApplication.run(BatchApplication.class, args);
 		ApplicationContext context = new AnnotationConfigApplicationContext(BatchApplicationResolveDeadlock.class);
         JobLauncher jobLauncher = context.getBean(JobLauncher.class);
         Job job = context.getBean(Job.class);
